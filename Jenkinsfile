@@ -69,6 +69,8 @@ pipeline {
 
                 withCredentials([sshUserPrivateKey(credentialsId: 'ansible-ssh', keyFileVariable: 'SSH_KEY')]) {
                     sh 'chmod 600 $SSH_KEY'
+                    sh 'mkdir -p ~/.ssh'
+                    sh 'ssh-keyscan 44.221.66.219 >> ~/.ssh/known_hosts'
                     sh '''
                         ansible-playbook -i Ansible/inventory Ansible/main.yml \
                         --private-key $SSH_KEY \
