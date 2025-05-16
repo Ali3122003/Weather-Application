@@ -80,7 +80,32 @@ pipeline {
                     }
                      
                }
-                     
+//withCredentials([sshUserPrivateKey(credentialsId: 'ansible-ssh', keyFileVariable: 'ssh-key', passphraseVariable: 'ansible-ssh', usernameVariable: 'USER')]) {
+    // some block
+//}
+
+      stage('Ansible Deploy ...') {
+            steps {
+                sh "echo Deploy using Ansible ..."
+
+                withCredentials([sshUserPrivateKey(credentialsId: 'ansible-ssh', keyFileVariable: 'ssh-key')]) {
+                    sh 'chmod 600 $SSH_KEY'
+                    sh '''
+                        ansible-playbook -i Ansible/inventory Ansible/main.yml \
+                        --private-key $SSH_KEY \
+                        -e build_number=V.$BUILD_NUMBER
+                    '''
+                }
+            }
+
+            post {
+                success {
+                    slackSend color: "good", message: "${BUILD_TAG} - Ansible Deploy Successful"
+                }
+                failure {
+                    slackSend color: "danger", message: "${BUILD_TAG} - Ansible Deploy Failed"
+                }
+            }
          }
 
    }
