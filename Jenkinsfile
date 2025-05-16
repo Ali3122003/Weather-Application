@@ -83,7 +83,7 @@ pipeline {
 //withCredentials([sshUserPrivateKey(credentialsId: 'ansible-ssh', keyFileVariable: 'ssh-key', passphraseVariable: 'ansible-ssh', usernameVariable: 'USER')]) {
     // some block
 //}
-
+         }
       stage('Ansible Deploy ...') {
             steps {
                 sh "echo Deploy using Ansible ..."
