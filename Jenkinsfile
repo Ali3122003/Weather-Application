@@ -38,7 +38,7 @@ pipeline {
 
         stage('Deployment ...') {
             steps {
-                sh "echo Deployment ..."
+                sh "echo Deployment ... "
 
                 sh "sed -i 's|image: aliahmed312/weatherapp-auth:.*|image: aliahmed312/weatherapp-auth:V.$BUILD_NUMBER|g' k8s/auth/weatherauth-deployment.yaml"
                 sh "sed -i 's|image:.*|image: aliahmed312/weatherapp-weather:V.$BUILD_NUMBER|g' k8s/weather/weather-deployment.yaml"
@@ -50,6 +50,7 @@ pipeline {
                     sh "kubectl --kubeconfig=$k8s apply -f k8s/ui/weatherui-deployment.yaml"
                 }
             }
+/*
             post {
                 success {
                     slackSend color: "good", message: "${BUILD_TAG} Was Successful"
@@ -58,8 +59,10 @@ pipeline {
                     slackSend color: "danger", message: "${BUILD_TAG} Was Failure"
                 }
             }
+            */
         }
 
+        
         stage('Ansible Deploy ...') {
             steps {
                 sh "echo Deploy using Ansible ..."
@@ -68,12 +71,12 @@ pipeline {
                     sh 'chmod 600 $SSH_KEY'
                     sh '''
                         ansible-playbook -i Ansible/inventory Ansible/main.yml \
-                        --tag weather \
                         --private-key $SSH_KEY \
                         -e build_number=V.$BUILD_NUMBER
                     '''
                 }
             }
+
             post {
                 success {
                     slackSend color: "good", message: "${BUILD_TAG} - Ansible Deploy Successful"
@@ -85,5 +88,4 @@ pipeline {
         }
 
     } 
-}
-
+} 
