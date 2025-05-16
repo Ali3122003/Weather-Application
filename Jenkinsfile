@@ -50,7 +50,7 @@ pipeline {
                     sh "kubectl --kubeconfig=$k8s apply -f k8s/ui/weatherui-deployment.yaml"
                 }
             }
-/*
+
             post {
                 success {
                     slackSend color: "good", message: "${BUILD_TAG} Was Successful"
@@ -59,7 +59,7 @@ pipeline {
                     slackSend color: "danger", message: "${BUILD_TAG} Was Failure"
                 }
             }
-            */
+            
         }
 
         
