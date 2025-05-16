@@ -67,16 +67,26 @@ pipeline {
             steps {
                 sh "echo Deploy using Ansible ..."
 
-                withCredentials([sshUserPrivateKey(credentialsId: 'ansible-ssh', keyFileVariable: 'SSH_KEY')]) {
-                    sh 'chmod 600 $SSH_KEY'
-                    sh 'mkdir -p ~/.ssh'
-                    sh 'ssh-keyscan 44.221.66.219 >> ~/.ssh/known_hosts'
-                    sh '''
-                        ansible-playbook -i Ansible/inventory Ansible/main.yml \
-                        --private-key $SSH_KEY \
-                        -e build_number=V.$BUILD_NUMBER
-                    '''
-                }
+                    withCredentials([sshUserPrivateKey(
+                        credentialsId: 'ansible-ssh',
+                        keyFileVariable: 'SSH_KEY',
+                        passphraseVariable: 'KEY_SSH',
+                        usernameVariable: 'USER'
+                    )]) {
+                        sh 'chmod 600 $SSH_KEY'
+                        sh 'mkdir -p ~/.ssh'
+                        sh 'ssh-keyscan 44.221.66.219 >> ~/.ssh/known_hosts'
+
+                        // optional SSH connection test
+                        sh 'ssh -i $SSH_KEY -o StrictHostKeyChecking=no $USER@44.221.66.219 echo connected'
+
+                        sh '''
+                            ansible-playbook -i Ansible/inventory Ansible/main.yml \
+                            --private-key $SSH_KEY \
+                            -u $USER \
+                            -e build_number=V.$BUILD_NUMBER
+                        '''
+                    }
             }
 
             post {
